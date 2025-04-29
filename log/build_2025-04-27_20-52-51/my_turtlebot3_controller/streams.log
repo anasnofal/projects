@@ -1,0 +1,24 @@
+[0.780s] Invoking command in '/app/ros2_ws/build/my_turtlebot3_controller': PYTHONPATH=/app/ros2_ws/build/my_turtlebot3_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/app/ros2_ws/install/my_turtlebot3_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /app/ros2_ws/build/my_turtlebot3_controller/build --no-deps symlink_data
+[1.085s] running develop
+[1.184s] running egg_info
+[1.185s] creating my_turtlebot3_controller.egg-info
+[1.185s] writing my_turtlebot3_controller.egg-info/PKG-INFO
+[1.186s] writing dependency_links to my_turtlebot3_controller.egg-info/dependency_links.txt
+[1.186s] writing entry points to my_turtlebot3_controller.egg-info/entry_points.txt
+[1.187s] writing requirements to my_turtlebot3_controller.egg-info/requires.txt
+[1.187s] writing top-level names to my_turtlebot3_controller.egg-info/top_level.txt
+[1.188s] writing manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'
+[1.190s] reading manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'
+[1.193s] writing manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'
+[1.193s] running build_ext
+[1.194s] Creating /app/ros2_ws/install/my_turtlebot3_controller/lib/python3.10/site-packages/my-turtlebot3-controller.egg-link (link to .)
+[1.196s] Installing move_turtlebot script to /app/ros2_ws/install/my_turtlebot3_controller/lib/my_turtlebot3_controller
+[1.197s] 
+[1.197s] Installed /app/ros2_ws/build/my_turtlebot3_controller
+[1.198s] running symlink_data
+[1.198s] creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index
+[1.199s] creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index
+[1.199s] creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index/packages
+[1.201s] symbolically linking /app/ros2_ws/build/my_turtlebot3_controller/resource/my_turtlebot3_controller -> /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index/packages
+[1.205s] symbolically linking /app/ros2_ws/build/my_turtlebot3_controller/package.xml -> /app/ros2_ws/install/my_turtlebot3_controller/share/my_turtlebot3_controller
+[1.220s] Invoked command in '/app/ros2_ws/build/my_turtlebot3_controller' returned '0': PYTHONPATH=/app/ros2_ws/build/my_turtlebot3_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/app/ros2_ws/install/my_turtlebot3_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /app/ros2_ws/build/my_turtlebot3_controller/build --no-deps symlink_data

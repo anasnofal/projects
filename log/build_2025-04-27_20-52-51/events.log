@@ -1,0 +1,41 @@
+[0.000000] (-) TimerEvent: {}
+[0.001938] (my_turtlebot3_controller) JobQueued: {'identifier': 'my_turtlebot3_controller', 'dependencies': OrderedDict()}
+[0.002179] (my_turtlebot3_controller) JobStarted: {'identifier': 'my_turtlebot3_controller'}
+[0.099410] (-) TimerEvent: {}
+[0.201862] (-) TimerEvent: {}
+[0.305674] (-) TimerEvent: {}
+[0.407394] (-) TimerEvent: {}
+[0.509697] (-) TimerEvent: {}
+[0.613697] (-) TimerEvent: {}
+[0.716020] (-) TimerEvent: {}
+[0.774092] (my_turtlebot3_controller) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/app/ros2_ws/build/my_turtlebot3_controller/build', '--no-deps', 'symlink_data'], 'cwd': '/app/ros2_ws/build/my_turtlebot3_controller', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/usr/lib/x86_64-linux-gnu/gazebo-11/plugins://opt/ros/humble/opt/rviz_ogre_vendor/lib://opt/ros/humble/lib/x86_64-linux-gnu://opt/ros/humble/lib', 'OLDPWD': '//app/ros2_ws/src', 'ROS_PYTHON_VERSION': '3', 'LC_CTYPE': 'C.UTF-8', 'COLCON_PREFIX_PATH': '/app/ros2_ws/install', 'ROS_DISTRO': 'humble', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '//opt/ros/humble/bin:/command:/opt/ros/humble/bin:/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'LS_COLORS': '', 'AMENT_PREFIX_PATH': '//opt/ros/humble', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'PWD': '/app/ros2_ws/build/my_turtlebot3_controller', 'PYTHONPATH': '/app/ros2_ws/build/my_turtlebot3_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/app/ros2_ws/install/my_turtlebot3_controller/lib/python3.10/site-packages://opt/ros/humble/lib/python3.10/site-packages://opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1'}, 'shell': False}
+[0.816645] (-) TimerEvent: {}
+[0.917865] (-) TimerEvent: {}
+[1.024051] (-) TimerEvent: {}
+[1.084666] (my_turtlebot3_controller) StdoutLine: {'line': b'running develop\n'}
+[1.124690] (-) TimerEvent: {}
+[1.185677] (my_turtlebot3_controller) StdoutLine: {'line': b'running egg_info\n'}
+[1.186602] (my_turtlebot3_controller) StdoutLine: {'line': b'creating my_turtlebot3_controller.egg-info\n'}
+[1.187037] (my_turtlebot3_controller) StdoutLine: {'line': b'writing my_turtlebot3_controller.egg-info/PKG-INFO\n'}
+[1.187880] (my_turtlebot3_controller) StdoutLine: {'line': b'writing dependency_links to my_turtlebot3_controller.egg-info/dependency_links.txt\n'}
+[1.188471] (my_turtlebot3_controller) StdoutLine: {'line': b'writing entry points to my_turtlebot3_controller.egg-info/entry_points.txt\n'}
+[1.189037] (my_turtlebot3_controller) StdoutLine: {'line': b'writing requirements to my_turtlebot3_controller.egg-info/requires.txt\n'}
+[1.189405] (my_turtlebot3_controller) StdoutLine: {'line': b'writing top-level names to my_turtlebot3_controller.egg-info/top_level.txt\n'}
+[1.189986] (my_turtlebot3_controller) StdoutLine: {'line': b"writing manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'\n"}
+[1.192585] (my_turtlebot3_controller) StdoutLine: {'line': b"reading manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'\n"}
+[1.194100] (my_turtlebot3_controller) StdoutLine: {'line': b"writing manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'\n"}
+[1.195491] (my_turtlebot3_controller) StdoutLine: {'line': b'running build_ext\n'}
+[1.196002] (my_turtlebot3_controller) StdoutLine: {'line': b'Creating /app/ros2_ws/install/my_turtlebot3_controller/lib/python3.10/site-packages/my-turtlebot3-controller.egg-link (link to .)\n'}
+[1.197995] (my_turtlebot3_controller) StdoutLine: {'line': b'Installing move_turtlebot script to /app/ros2_ws/install/my_turtlebot3_controller/lib/my_turtlebot3_controller\n'}
+[1.199201] (my_turtlebot3_controller) StdoutLine: {'line': b'\n'}
+[1.199600] (my_turtlebot3_controller) StdoutLine: {'line': b'Installed /app/ros2_ws/build/my_turtlebot3_controller\n'}
+[1.200046] (my_turtlebot3_controller) StdoutLine: {'line': b'running symlink_data\n'}
+[1.200526] (my_turtlebot3_controller) StdoutLine: {'line': b'creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index\n'}
+[1.200852] (my_turtlebot3_controller) StdoutLine: {'line': b'creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index\n'}
+[1.201198] (my_turtlebot3_controller) StdoutLine: {'line': b'creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index/packages\n'}
+[1.201542] (my_turtlebot3_controller) StdoutLine: {'line': b'symbolically linking /app/ros2_ws/build/my_turtlebot3_controller/resource/my_turtlebot3_controller -> /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index/packages\n'}
+[1.204830] (my_turtlebot3_controller) StdoutLine: {'line': b'symbolically linking /app/ros2_ws/build/my_turtlebot3_controller/package.xml -> /app/ros2_ws/install/my_turtlebot3_controller/share/my_turtlebot3_controller\n'}
+[1.221873] (my_turtlebot3_controller) CommandEnded: {'returncode': 0}
+[1.225597] (-) TimerEvent: {}
+[1.246497] (my_turtlebot3_controller) JobEnded: {'identifier': 'my_turtlebot3_controller', 'rc': 0}
+[1.248115] (-) EventReactorShutdown: {}

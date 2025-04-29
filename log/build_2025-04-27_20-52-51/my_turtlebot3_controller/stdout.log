@@ -1,0 +1,22 @@
+running develop
+running egg_info
+creating my_turtlebot3_controller.egg-info
+writing my_turtlebot3_controller.egg-info/PKG-INFO
+writing dependency_links to my_turtlebot3_controller.egg-info/dependency_links.txt
+writing entry points to my_turtlebot3_controller.egg-info/entry_points.txt
+writing requirements to my_turtlebot3_controller.egg-info/requires.txt
+writing top-level names to my_turtlebot3_controller.egg-info/top_level.txt
+writing manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'
+reading manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'
+writing manifest file 'my_turtlebot3_controller.egg-info/SOURCES.txt'
+running build_ext
+Creating /app/ros2_ws/install/my_turtlebot3_controller/lib/python3.10/site-packages/my-turtlebot3-controller.egg-link (link to .)
+Installing move_turtlebot script to /app/ros2_ws/install/my_turtlebot3_controller/lib/my_turtlebot3_controller
+
+Installed /app/ros2_ws/build/my_turtlebot3_controller
+running symlink_data
+creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index
+creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index
+creating /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index/packages
+symbolically linking /app/ros2_ws/build/my_turtlebot3_controller/resource/my_turtlebot3_controller -> /app/ros2_ws/install/my_turtlebot3_controller/share/ament_index/resource_index/packages
+symbolically linking /app/ros2_ws/build/my_turtlebot3_controller/package.xml -> /app/ros2_ws/install/my_turtlebot3_controller/share/my_turtlebot3_controller
