@@ -1,41 +1,41 @@
-# cmd_vel_relay.py
-
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
+from nav2_msgs.action import NavigateToPose
+from geometry_msgs.msg import PoseStamped
+from rclpy.action import ActionClient
+import time
 
-class CmdVelRelay(Node):
+class GoToBinsNode(Node):
+
     def __init__(self):
-        super().__init__('cmd_vel_relay')
-        self.get_logger().info('Starting cmd_vel relay node...')
+        super().__init__('go_to_bins')
+        self.client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self.targets = [
+            # Replace with coordinates near your trash bins
+            {'x': 2.0, 'y': 1.5, 'theta': 0.0},
+            {'x': 4.0, 'y': 3.2, 'theta': 1.57}
+        ]
+        self.send_goals()
 
-        self.subscription = self.create_subscription(
-            Twist,
-            '/cmd_vel',  # here the  Gazebo cmd_vel
-            self.cmd_vel_callback,
-            10
-        )
+    def send_goals(self):
+        for target in self.targets:
+            goal_msg = NavigateToPose.Goal()
+            pose = PoseStamped()
+            pose.header.frame_id = 'map'
+            pose.header.stamp = self.get_clock().now().to_msg()
+            pose.pose.position.x = target['x']
+            pose.pose.position.y = target['y']
+            pose.pose.orientation.z = 1.0  # Simplified for straight orientation
+            goal_msg.pose = pose
 
-        self.publisher = self.create_publisher(
-            Twist,
-            '/cmd_vel',  # Same topic name, here it should be changed to real robot cmd_vel
-            10
-        )
-
-    def cmd_vel_callback(self, msg):
-        self.get_logger().debug(f'Relaying cmd_vel: {msg}')
-        self.publisher.publish(msg)
+            self.client.wait_for_server()
+            self.get_logger().info(f'Sending goal: {target}')
+            self.client.send_goal_async(goal_msg)
+            time.sleep(10)  # Give time to navigate
 
 def main(args=None):
     rclpy.init(args=args)
-    node = CmdVelRelay()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
+    node = GoToBinsNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
