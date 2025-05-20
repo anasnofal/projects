@@ -23,7 +23,7 @@ class GoToBinsNode(Node):
             self.get_logger().info('Waiting for /gazebo/get_model_state service...')
 
         # List your bin model names here
-        self.bin_names = ['trash_bin_1', 'trash_bin_2']
+        self.bin_names = ['first_2015_trash_can_0', 'first_2015_trash_can_1','first_2015_trash_can_2']
         self.targets = []
 
         # Query each bin for its (x,y) in the world frame
