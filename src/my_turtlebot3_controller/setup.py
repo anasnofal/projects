@@ -21,7 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'move_turtlebot = my_turtlebot3_controller.move_turtlebot:main',
-            'cmd_vel_relay = my_turtlebot3_controller.cmd_vel_relay:main',
+            'GoToBinsNode = my_turtlebot3_controller.GoToBinsNode:main',
         ],
     },
 )
