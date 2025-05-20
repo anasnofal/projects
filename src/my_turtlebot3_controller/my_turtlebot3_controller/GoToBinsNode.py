@@ -5,37 +5,6 @@ import time
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from gazebo_msgs.srv import GetModelState
-from nav2_msgs.action import NavigateToPose
-from geometry_msgs.msg import PoseStamped
-
-class GoToBinsNode(Node):
-
-    def __init__(self):
-        super().__init__('go_to_bins')
-
-        # 1) Nav2 action client
-        self._nav_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
-
-        # 2) Gazebo service client for model states
-        self._state_cli = self.create_client(GetModelState, '/gazebo/get_model_state')
-        if not self._state_cli.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('Service /gazebo/get_model_state not available, exiting.')
-            rclpy.shutdown()
-            return
-
-        # 3) Names of your trash-bin models in Gazebo
-        # 3) Names of your trash-bin models in Gazebo
-        self.bin_names = [
-    'first_2015_trash_can_0',
-    'first_2015_trash_can_1',
-    'first_2015a#!/usr/bin/env python3
-import math
-import time
-
-import rclpy
-from rclpy.node import Node
-from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 
