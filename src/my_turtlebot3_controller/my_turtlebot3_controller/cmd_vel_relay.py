@@ -1,79 +1,102 @@
 #!/usr/bin/env python3
+import math
+import time
+
 import rclpy
 from rclpy.node import Node
+from rclpy.action import ActionClient
+from gazebo_msgs.srv import GetModelState
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
-from gazebo_msgs.srv import GetModelState
-from rclpy.action import ActionClient
-from tf_transformations import quaternion_from_euler
-import time
 
 class GoToBinsNode(Node):
 
     def __init__(self):
         super().__init__('go_to_bins')
 
-        # Nav2 action client
-        self.client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        # 1) Nav2 action client
+        self._nav_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
 
-        # Gazebo service client for model states
-        self.get_state_cli = self.create_client(
-            GetModelState, '/gazebo/get_model_state')
-        while not self.get_state_cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Waiting for /gazebo/get_model_state service...')
+        # 2) Gazebo service client for model states
+        self._state_cli = self.create_client(GetModelState, '/gazebo/get_model_state')
+        if not self._state_cli.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error('Service /gazebo/get_model_state not available, exiting.')
+            rclpy.shutdown()
+            return
 
-        # List your bin model names here
-        self.bin_names = ['first_2015_trash_can_0', 'first_2015_trash_can_1','first_2015_trash_can_2']
-        self.targets = []
+        # 3) Names of your trash-bin models in Gazebo
+        # 3) Names of your trash-bin models in Gazebo
+        self.bin_names = [
+    'first_2015_trash_can_0',
+    'first_2015_trash_can_1',
+    'first_2015_trash_can_2'
+]
 
-        # Query each bin for its (x,y) in the world frame
+
+        # 4) Query and build target list
+        self.targets = self._fetch_bin_positions()
+
+        # 5) Once we have targets, start sending goals
+        self.send_goals()
+
+    def _fetch_bin_positions(self):
+        """Call /gazebo/get_model_state for each bin name and return list of dicts."""
+        targets = []
         for name in self.bin_names:
             req = GetModelState.Request()
             req.model_name = name
             req.relative_entity_name = 'world'
-            future = self.get_state_cli.call_async(req)
+            future = self._state_cli.call_async(req)
             rclpy.spin_until_future_complete(self, future)
             res = future.result()
-            if res.success:
-                x = res.pose.position.x
-                y = res.pose.position.y
-                theta = 0.0
-                self.targets.append({'x': x, 'y': y, 'theta': theta})
-                self.get_logger().info(f'Found {name} at x={x:.2f}, y={y:.2f}')
-            else:
-                self.get_logger().error(f'Failed to get state for {name}')
+            if res is None or not res.success:
+                self.get_logger().warn(f"Couldn't get state for '{name}'. Skipping.")
+                continue
 
-        # Once we have real coords, send the goals
-        self.send_goals()
+            x = res.pose.position.x
+            y = res.pose.position.y
+            # Face “forward” along +x by default
+            theta = 0.0
+            self.get_logger().info(f"Found '{name}' at x={x:.2f}, y={y:.2f}")
+            targets.append({'name': name, 'x': x, 'y': y, 'theta': theta})
+        return targets
+
+    def _make_quaternion(self, yaw: float):
+        """Return (x, y, z, w) quaternion for a yaw-only rotation."""
+        half = yaw * 0.5
+        return (0.0, 0.0, math.sin(half), math.cos(half))
 
     def send_goals(self):
         for t in self.targets:
-            # Build the NavigateToPose goal
+            # Build the goal
             goal_msg = NavigateToPose.Goal()
             pose = PoseStamped()
             pose.header.frame_id = 'map'
             pose.header.stamp = self.get_clock().now().to_msg()
             pose.pose.position.x = t['x']
             pose.pose.position.y = t['y']
-            # Convert yaw (theta) to quaternion
-            q = quaternion_from_euler(0, 0, t['theta'])
-            pose.pose.orientation.x = q[0]
-            pose.pose.orientation.y = q[1]
-            pose.pose.orientation.z = q[2]
-            pose.pose.orientation.w = q[3]
+            qx, qy, qz, qw = self._make_quaternion(t['theta'])
+            pose.pose.orientation.x = qx
+            pose.pose.orientation.y = qy
+            pose.pose.orientation.z = qz
+            pose.pose.orientation.w = qw
             goal_msg.pose = pose
 
-            self.client.wait_for_server()
-            self.get_logger().info(f'Sending goal to {t}')
-            self.client.send_goal_async(goal_msg)
+            # Send it
+            self._nav_client.wait_for_server()
+            self.get_logger().info(f"Sending robot to '{t['name']}' at ({t['x']:.2f},{t['y']:.2f})")
+            self._nav_client.send_goal_async(goal_msg)
 
-            # Simple fixed wait; you can replace with proper result callbacks
-            self.get_logger().info('Waiting 10 seconds for the robot to navigate…')
-            time.sleep(10)
+            # Wait for 10s before next goal (replace with real result handling later)
+            time.sleep(10.0)
 
 def main(args=None):
     rclpy.init(args=args)
     node = GoToBinsNode()
-    rclpy.spin(node)
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
     node.destroy_node()
     rclpy.shutdown()
+
