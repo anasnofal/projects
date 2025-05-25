@@ -26,10 +26,7 @@ def generate_launch_description():
     pkg_turtlebot3_gazebo = get_package_share_directory('turtlebot3_gazebo') # Used for worlds
 
     # --- World File Definition ---
-    # Explicitly choose a world file that you know exists.
-    # These are standard worlds provided by turtlebot3_gazebo.
-    # world_file_to_load = 'empty_world.world'
-    world_file_to_load = 'turtlebot3_world.world'
+    world_file_to_load = 'turtlebot3_world.world' # Or 'empty_world.world'
 
     world_path = PathJoinSubstitution([
         pkg_turtlebot3_gazebo,
@@ -53,7 +50,6 @@ def generate_launch_description():
     )
 
     # --- Robot State Publisher ---
-    # URDF file path for the specified TURTLEBOT3_MODEL
     urdf_file_name = 'turtlebot3_' + TURTLEBOT3_MODEL + '.urdf'
     urdf_path = PathJoinSubstitution([
         pkg_turtlebot3_description,
@@ -64,29 +60,17 @@ def generate_launch_description():
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        name='robot_state_publisher', # Node name
-        namespace=robot_name,         # Namespace for the node
+        name='robot_state_publisher',
+        namespace=robot_name,
         output='screen',
         parameters=[{
             'use_sim_time': use_sim_time,
             'robot_description': PythonExpression(["open('", urdf_path, "').read()"]),
-            # To correctly namespace TF frames, use frame_prefix.
-            # The topics /tf and /tf_static will be automatically namespaced
-            # if the node is in a namespace.
-            # For TF frames themselves, 'frame_prefix' is needed.
             'frame_prefix': PythonExpression(["'", robot_name, "/'"])
         }]
-        # Remapping for /tf and /tf_static is usually handled by the node's namespace.
-        # If explicit remapping is needed:
-        # remappings=[
-        #     ('/tf', 'tf'),
-        #     ('/tf_static', 'tf_static')
-        # ]
     )
 
     # --- Spawn Robot Entity ---
-    # The robot_description topic will be namespaced as /<robot_name>/robot_description
-    # due to the robot_state_publisher_node being in a namespace.
     robot_description_topic_name = PythonExpression(["'/', robot_name, '/robot_description'"])
 
     spawn_entity_cmd = Node(
@@ -94,20 +78,20 @@ def generate_launch_description():
         executable='spawn_entity.py',
         arguments=[
             '-topic', robot_description_topic_name,
-            '-entity', robot_name,                # Name of the model in Gazebo
-            '-robot_namespace', robot_name,       # Namespace for ROS topics from Gazebo plugins
+            '-entity', robot_name,
+            '-robot_namespace', robot_name,
             '-x', '0.0',
             '-y', '0.0',
-            '-z', '0.1',                          # Small offset
-            '-Y', '0.0'                           # Initial yaw
+            '-z', '0.1',
+            '-Y', '0.0'
         ],
         output='screen'
     )
 
-    # Log messages for debugging
-    log_world_path = LogInfo(msg=PythonExpression(["'Attempting to load world: ', '", world_path, "'"]))
-    log_urdf_path = LogInfo(msg=PythonExpression(["'Loading URDF from: ', '", urdf_path, "' for model: ", TURTLEBOT3_MODEL, "'"]))
-    log_robot_description_topic = LogInfo(msg=PythonExpression(["'Robot description topic: ', '", robot_description_topic_name, "'"]))
+    # Corrected Log messages for debugging
+    log_world_path = LogInfo(msg=['Attempting to load world: ', world_path])
+    log_urdf_path = LogInfo(msg=['Loading URDF from: ', urdf_path, ' for model: ', TURTLEBOT3_MODEL])
+    log_robot_description_topic = LogInfo(msg=['Robot description topic: ', robot_description_topic_name])
 
 
     return LaunchDescription([
