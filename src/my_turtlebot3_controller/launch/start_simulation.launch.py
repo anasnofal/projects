@@ -9,21 +9,53 @@ from launch_ros.actions import Node
 def generate_launch_description():
     # Paths
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
-    pkg_smart_waste_project = get_package_share_directory('my_turtlebot3_controller') # Your package name
+    # Make sure to replace 'my_turtlebot3_controller' with your actual package name if different
+    # The error log shows: /home/anas/projects/install/my_turtlebot3_controller/share/my_turtlebot3_controller/launch/start_simulation.launch.py
+    # So, your package name seems to be 'my_turtlebot3_controller'
+    pkg_your_project = get_package_share_directory('my_turtlebot3_controller')
     pkg_turtlebot3_gazebo = get_package_share_directory('turtlebot3_gazebo')
 
     # Your Gazebo world file
-    # Make sure 'my_trash_world.world' is in 'smart_waste_project/worlds/'
-    world_file_path = os.path.join(pkg_smart_waste_project, 'worlds', 'my_trash_world.world')
+    # Ensure 'my_trash_world.world' is in 'pkg_your_project/worlds/'
+    world_file_path = os.path.join(pkg_your_project, 'worlds', 'my_trash_world.world') # Adjusted to use pkg_your_project
 
+    # --- CORRECTED LaunchConfiguration ---
     # TurtleBot3 model: 'burger', 'waffle', 'waffle_pi'
-    model = LaunchConfiguration('model', default_value='burger')
+    # For Foxy, LaunchConfiguration only takes the name. Default is set in DeclareLaunchArgument.
+    model = LaunchConfiguration('model')
     # Spawn pose for TurtleBot3
-    x_pose = LaunchConfiguration('x_pose', default_value='0.0')
-    y_pose = LaunchConfiguration('y_pose', default_value='0.0')
-    z_pose = LaunchConfiguration('z_pose', default_value='0.0')
-    yaw_pose = LaunchConfiguration('yaw_pose', default_value='0.0')
+    x_pose = LaunchConfiguration('x_pose')
+    y_pose = LaunchConfiguration('y_pose')
+    z_pose = LaunchConfiguration('z_pose')
+    yaw_pose = LaunchConfiguration('yaw_pose')
+    # --- END CORRECTION ---
 
+    # Declare launch arguments
+    # These set the default values which LaunchConfiguration will then use.
+    declare_model_arg = DeclareLaunchArgument(
+        'model',
+        default_value='burger', # Default value is set here
+        description='TurtleBot3 model type (burger, waffle, waffle_pi)')
+
+    declare_x_pose_arg = DeclareLaunchArgument(
+        'x_pose',
+        default_value='0.0', # Default value is set here
+        description='Initial x pose of the robot')
+
+    declare_y_pose_arg = DeclareLaunchArgument(
+        'y_pose',
+        default_value='0.0', # Default value is set here
+        description='Initial y pose of the robot')
+
+    declare_z_pose_arg = DeclareLaunchArgument(
+        'z_pose',
+        default_value='0.0', # Default value is set here
+        description='Initial z pose of the robot')
+
+    declare_yaw_pose_arg = DeclareLaunchArgument(
+        'yaw_pose',
+        default_value='0.0', # Default value is set here
+        description='Initial yaw pose of the robot')
 
     # Gazebo server and client
     gzserver_cmd = IncludeLaunchDescription(
@@ -40,12 +72,11 @@ def generate_launch_description():
     )
 
     # Robot State Publisher for TurtleBot3
-    # This loads the URDF model of the TurtleBot3
     rsp_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_turtlebot3_gazebo, 'launch', 'robot_state_publisher.launch.py')
         ),
-        launch_arguments={'use_sim_time': 'true', 'model': model}.items()
+        launch_arguments={'use_sim_time': 'true', 'model': model}.items() # 'model' here refers to the LaunchConfiguration
     )
 
     # Spawn TurtleBot3
@@ -54,26 +85,14 @@ def generate_launch_description():
             os.path.join(pkg_turtlebot3_gazebo, 'launch', 'spawn_turtlebot3.launch.py')
         ),
         launch_arguments={
-            'x_pose': x_pose,
+            'x_pose': x_pose, # These refer to the LaunchConfigurations
             'y_pose': y_pose,
             'z_pose': z_pose,
             'yaw_pose': yaw_pose,
             'model': model,
-            'robot_name': 'turtlebot3' # Or any name you prefer
+            'robot_name': 'turtlebot3'
         }.items()
     )
-
-    # Declare launch arguments (optional, allows changing model/pose from command line)
-    declare_model_arg = DeclareLaunchArgument(
-        'model',
-        default_value='burger',
-        description='TurtleBot3 model type (burger, waffle, waffle_pi)')
-
-    declare_x_pose_arg = DeclareLaunchArgument('x_pose', default_value='0.0')
-    declare_y_pose_arg = DeclareLaunchArgument('y_pose', default_value='0.0')
-    declare_z_pose_arg = DeclareLaunchArgument('z_pose', default_value='0.0')
-    declare_yaw_pose_arg = DeclareLaunchArgument('yaw_pose', default_value='0.0')
-
 
     return LaunchDescription([
         declare_model_arg,
