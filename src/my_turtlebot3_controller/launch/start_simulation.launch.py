@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     # Paths
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
-    pkg_smart_waste_project = get_package_share_directory('smart_waste_project') # Your package name
+    pkg_smart_waste_project = get_package_share_directory('my_turtlebot3_controller') # Your package name
     pkg_turtlebot3_gazebo = get_package_share_directory('turtlebot3_gazebo')
 
     # Your Gazebo world file
