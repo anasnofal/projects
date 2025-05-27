@@ -101,7 +101,7 @@ def main(args=None):
 
     # --- DEFINE YOUR TARGET COORDINATES AND YAW (in degrees) HERE ---
     target_x = 0.5
-    target_y = -8.0
+    target_y = -0.8
     target_yaw_degrees = 0.0
     # --------------------------------------------------------------
 
