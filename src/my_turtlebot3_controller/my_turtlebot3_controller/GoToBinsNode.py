@@ -100,8 +100,8 @@ def main(args=None):
     navigator_node = GoToBinsNode()
 
     # --- DEFINE YOUR TARGET COORDINATES AND YAW (in degrees) HERE ---
-    target_x = 1.5
-    target_y = -1.0
+    target_x = 0.5
+    target_y = -8.0
     target_yaw_degrees = 0.0
     # --------------------------------------------------------------
 
