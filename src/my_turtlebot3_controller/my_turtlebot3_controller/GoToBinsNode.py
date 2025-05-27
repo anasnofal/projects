@@ -8,9 +8,9 @@ from tf_transformations import quaternion_from_euler # For converting yaw to qua
 import math
 import time
 
-class CoordinateNavigatorNode(Node):
+class GoToBinsNode(Node):
     def __init__(self):
-        super().__init__('coordinate_navigator_node')
+        super().__init__('GoToBinsNode')
         self._action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose') # Standard Nav2 action server
         self.get_logger().info("Coordinate Navigator Node Initialized.")
         self.goal_handle = None
@@ -89,7 +89,7 @@ class CoordinateNavigatorNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    navigator_node = CoordinateNavigatorNode()
+    navigator_node = GoToBinsNode()
 
     # --- DEFINE YOUR TARGET COORDINATES AND YAW (in degrees) HERE ---
     # Replace with coordinates you determined in Step 1 from your map
