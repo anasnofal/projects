@@ -8,13 +8,15 @@ from tf_transformations import quaternion_from_euler # For converting yaw to qua
 import math
 import time
 
+from action_msgs.msg import GoalStatus as ActionGoalStatus # Use an alias to be safe
+
 class GoToBinsNode(Node):
     def __init__(self):
         super().__init__('GoToBinsNode')
         self._action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose') # Standard Nav2 action server
         self.get_logger().info("Coordinate Navigator Node Initialized.")
         self.goal_handle = None
-        self.goal_done_status = None # To store final status
+        self.goal_done_status = None # To store final status (will be an integer from ActionGoalStatus)
 
     def wait_for_action_server(self, timeout_sec=5.0):
         self.get_logger().info('Waiting for /navigate_to_pose action server...')
@@ -26,6 +28,7 @@ class GoToBinsNode(Node):
 
     def send_navigation_goal(self, x, y, yaw_degrees):
         if not self.wait_for_action_server():
+            self.goal_done_status = -1 # Indicate failure to send
             return False
 
         self.goal_done_status = None # Reset status for new goal
@@ -58,7 +61,8 @@ class GoToBinsNode(Node):
         self.goal_handle = future.result()
         if not self.goal_handle.accepted:
             self.get_logger().error('Goal rejected by Nav2 server.')
-            self.goal_done_status = rclpy.action.GoalStatus.STATUS_REJECTED
+            # Use the imported ActionGoalStatus constants
+            self.goal_done_status = ActionGoalStatus.STATUS_REJECTED
             return
 
         self.get_logger().info('Goal accepted by Nav2 server. Waiting for result...')
@@ -66,23 +70,27 @@ class GoToBinsNode(Node):
         result_future.add_done_callback(self.get_result_callback)
 
     def get_result_callback(self, future):
-        status = future.result().status
-        # result = future.result().result # NavigateToPose.Result is empty
-        self.goal_done_status = status
+        # The status from future.result().status is an integer.
+        status_code = future.result().status 
+        # result = future.result().result # NavigateToPose.Result is empty for Nav2
+        self.goal_done_status = status_code # Store the integer status code
 
-        if status == rclpy.action.GoalStatus.STATUS_SUCCEEDED:
+        # Compare with the imported ActionGoalStatus constants
+        if status_code == ActionGoalStatus.STATUS_SUCCEEDED:
             self.get_logger().info('Navigation Succeeded!')
-        elif status == rclpy.action.GoalStatus.STATUS_ABORTED:
-            self.get_logger().error('Navigation Aborted by Nav2.')
-        elif status == rclpy.action.GoalStatus.STATUS_CANCELED:
-            self.get_logger().warn('Navigation Canceled.')
-        else:
-            self.get_logger().info(f'Navigation finished with status: {status}')
+        elif status_code == ActionGoalStatus.STATUS_ABORTED:
+            self.get_logger().error(f'Navigation Aborted by Nav2. Status Code: {status_code}')
+        elif status_code == ActionGoalStatus.STATUS_CANCELED:
+            self.get_logger().warn(f'Navigation Canceled. Status Code: {status_code}')
+        else: # This will catch other statuses like REJECTED (if it passed acceptance), UNKNOWN, etc.
+            self.get_logger().info(f'Navigation finished with status code: {status_code}')
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
-        # self.get_logger().info(f"Distance remaining: {feedback.distance_remaining:.2f} m")
-        # You can log other feedback like feedback.current_pose, feedback.navigation_time etc.
+        # Example: log only if significant distance remains, or at intervals
+        # if feedback.distance_remaining > 0.1:
+        #    self.get_logger().info(f"Distance remaining: {feedback.distance_remaining:.2f} m")
+        pass
 
     def is_goal_done(self):
         return self.goal_done_status is not None
@@ -92,20 +100,20 @@ def main(args=None):
     navigator_node = GoToBinsNode()
 
     # --- DEFINE YOUR TARGET COORDINATES AND YAW (in degrees) HERE ---
-    # Replace with coordinates you determined in Step 1 from your map
     target_x = 1.5
     target_y = -1.0
     target_yaw_degrees = 0.0
     # --------------------------------------------------------------
 
     if navigator_node.send_navigation_goal(target_x, target_y, target_yaw_degrees):
+        # Spin until the goal is done or Ctrl-C
         while rclpy.ok() and not navigator_node.is_goal_done():
             rclpy.spin_once(navigator_node, timeout_sec=0.1)
         
-        if navigator_node.is_goal_done():
-            navigator_node.get_logger().info("Goal processing sequence complete.")
+        if navigator_node.is_goal_done(): # Check one last time after loop exits
+            navigator_node.get_logger().info(f"Goal processing sequence complete with status: {navigator_node.goal_done_status}")
     else:
-        navigator_node.get_logger().error("Failed to send goal.")
+        navigator_node.get_logger().error("Failed to send goal initially (action server not available).")
 
     navigator_node.destroy_node()
     rclpy.shutdown()
