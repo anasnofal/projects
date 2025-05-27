@@ -1,139 +1,114 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult # For Nav2
+from rclpy.action import ActionClient
+from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 from tf_transformations import quaternion_from_euler # For converting yaw to quaternion
 import math
 import time
 
-class NavigatorCommanderNode(Node):
+class CoordinateNavigatorNode(Node):
     def __init__(self):
-        super().__init__('navigator_commander_node')
-        self.navigator = BasicNavigator()
-        self.get_logger().info("Navigator Commander Node Initialized.")
-        
-        # It's good practice to make sure Nav2 is up and ready.
-        # The navigator can handle bringing up Nav2 servers if they are not active
-        # For a simple goal sending, we assume Nav2 is already launched and active.
-        # You can add navigator.waitUntilNav2Active() if needed,
-        # or navigator.lifecycleStartup() if you want this node to manage Nav2's lifecycle.
-        # For this example, we'll assume Nav2 is fully up from another launch file.
+        super().__init__('coordinate_navigator_node')
+        self._action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose') # Standard Nav2 action server
+        self.get_logger().info("Coordinate Navigator Node Initialized.")
+        self.goal_handle = None
+        self.goal_done_status = None # To store final status
 
-    def go_to_pose(self, x, y, yaw_degrees):
-        self.get_logger().info("Setting goal pose...")
-        goal_pose = PoseStamped()
-        goal_pose.header.frame_id = 'map'
-        goal_pose.header.stamp = self.navigator.get_clock().now().to_msg() # Use navigator's clock
+    def wait_for_action_server(self, timeout_sec=5.0):
+        self.get_logger().info('Waiting for /navigate_to_pose action server...')
+        if not self._action_client.wait_for_server(timeout_sec=timeout_sec):
+            self.get_logger().error('/navigate_to_pose action server not available after waiting.')
+            return False
+        self.get_logger().info('/navigate_to_pose action server is available.')
+        return True
 
-        goal_pose.pose.position.x = float(x)
-        goal_pose.pose.position.y = float(y)
-        goal_pose.pose.position.z = 0.0
+    def send_navigation_goal(self, x, y, yaw_degrees):
+        if not self.wait_for_action_server():
+            return False
+
+        self.goal_done_status = None # Reset status for new goal
+
+        goal_msg = NavigateToPose.Goal()
+        goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
+        goal_msg.pose.header.frame_id = 'map' # Goals are in the map frame
+
+        goal_msg.pose.pose.position.x = float(x)
+        goal_msg.pose.pose.position.y = float(y)
+        goal_msg.pose.pose.position.z = 0.0  # Assuming 2D navigation
 
         yaw_radians = math.radians(float(yaw_degrees))
-        q = quaternion_from_euler(0, 0, yaw_radians)
-        goal_pose.pose.orientation.x = q[0]
-        goal_pose.pose.orientation.y = q[1]
-        goal_pose.pose.orientation.z = q[2]
-        goal_pose.pose.orientation.w = q[3]
+        q = quaternion_from_euler(0, 0, yaw_radians)  # Roll, Pitch, Yaw
+        goal_msg.pose.pose.orientation.x = q[0]
+        goal_msg.pose.pose.orientation.y = q[1]
+        goal_msg.pose.pose.orientation.z = q[2]
+        goal_msg.pose.pose.orientation.w = q[3]
 
-        self.get_logger().info(f"Attempting to navigate to: X={x}, Y={y}, Yaw={yaw_degrees}°")
+        self.get_logger().info(f"Sending goal: X={x}, Y={y}, Yaw={yaw_degrees}°")
         
-        # Go to the pose
-        self.navigator.goToPose(goal_pose)
+        send_goal_future = self._action_client.send_goal_async(
+            goal_msg,
+            feedback_callback=self.feedback_callback)
+        
+        send_goal_future.add_done_callback(self.goal_response_callback)
+        return True
 
-        # Wait until the task is complete
-        while not self.navigator.isTaskComplete():
-            feedback = self.navigator.getFeedback()
-            if feedback: # feedback can be None if no new feedback is available
-                self.get_logger().info(
-                    f"Distance remaining: {feedback.distance_remaining:.2f} m, "
-                    f"Time elapsed: {feedback.navigation_time.sec}s"
-                )
-            # Add a small delay to avoid busy-waiting, rclpy.spin_once is not needed here
-            # as BasicNavigator handles its own spinning for service/action calls.
-            time.sleep(0.1)
+    def goal_response_callback(self, future):
+        self.goal_handle = future.result()
+        if not self.goal_handle.accepted:
+            self.get_logger().error('Goal rejected by Nav2 server.')
+            self.goal_done_status = rclpy.action.GoalStatus.STATUS_REJECTED
+            return
 
+        self.get_logger().info('Goal accepted by Nav2 server. Waiting for result...')
+        result_future = self.goal_handle.get_result_async()
+        result_future.add_done_callback(self.get_result_callback)
 
-        result = self.navigator.getResult()
-        if result == TaskResult.SUCCEEDED:
-            self.get_logger().info('Goal succeeded!')
-            return True
-        elif result == TaskResult.CANCELED:
-            self.get_logger().warn('Goal was canceled!')
-            return False
-        elif result == TaskResult.FAILED:
-            self.get_logger().error('Goal failed!')
-            return False
+    def get_result_callback(self, future):
+        status = future.result().status
+        # result = future.result().result # NavigateToPose.Result is empty
+        self.goal_done_status = status
+
+        if status == rclpy.action.GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info('Navigation Succeeded!')
+        elif status == rclpy.action.GoalStatus.STATUS_ABORTED:
+            self.get_logger().error('Navigation Aborted by Nav2.')
+        elif status == rclpy.action.GoalStatus.STATUS_CANCELED:
+            self.get_logger().warn('Navigation Canceled.')
         else:
-            self.get_logger().info(f'Goal has an invalid return status: {result}')
-            return False
+            self.get_logger().info(f'Navigation finished with status: {status}')
 
-    def set_initial_pose(self, x, y, yaw_degrees):
-        initial_pose = PoseStamped()
-        initial_pose.header.frame_id = 'map'
-        initial_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        initial_pose.pose.position.x = float(x)
-        initial_pose.pose.position.y = float(y)
-        yaw_radians = math.radians(float(yaw_degrees))
-        q = quaternion_from_euler(0, 0, yaw_radians)
-        initial_pose.pose.orientation.x = q[0]
-        initial_pose.pose.orientation.y = q[1]
-        initial_pose.pose.orientation.z = q[2]
-        initial_pose.pose.orientation.w = q[3]
-        
-        self.navigator.setInitialPose(initial_pose)
-        self.get_logger().info("Initial pose set.")
-        # You might want to wait for AMCL to fully converge after setting initial pose
-        self.navigator.waitUntilNav2Active() # Good check after setting pose
-        self.get_logger().info("Waiting for AMCL to stabilize after initial pose...")
-        time.sleep(5) # Give AMCL some time
+    def feedback_callback(self, feedback_msg):
+        feedback = feedback_msg.feedback
+        # self.get_logger().info(f"Distance remaining: {feedback.distance_remaining:.2f} m")
+        # You can log other feedback like feedback.current_pose, feedback.navigation_time etc.
+
+    def is_goal_done(self):
+        return self.goal_done_status is not None
 
 def main(args=None):
     rclpy.init(args=args)
-    navigator_node = NavigatorCommanderNode()
-
-    # --- IMPORTANT: SET INITIAL POSE IF ROBOT ISN'T LOCALIZED ---
-    # If your robot is not yet localized by AMCL, or if you want to ensure it starts from a known pose.
-    # Replace these with your robot's actual starting pose in the map.
-    # If AMCL is already running and localized, you might be able to skip this.
-    # For simulation, often starts at (0,0,0) if map origin is same as world origin.
-    initial_x = 0.0
-    initial_y = 0.0
-    initial_yaw_degrees = 0.0
-    # navigator_node.set_initial_pose(initial_x, initial_y, initial_yaw_degrees)
-    # -----------------------------------------------------------------
+    navigator_node = CoordinateNavigatorNode()
 
     # --- DEFINE YOUR TARGET COORDINATES AND YAW (in degrees) HERE ---
-    target_x = 1.0
-    target_y = -0.5
-    target_yaw_degrees = 90.0
+    # Replace with coordinates you determined in Step 1 from your map
+    target_x = 1.5
+    target_y = -1.0
+    target_yaw_degrees = 0.0
     # --------------------------------------------------------------
 
-    try:
-        # Ensure Nav2 is active. If you don't want this node to manage lifecycle,
-        # make sure Nav2 is fully launched and active before running this script.
-        # For simplicity, we'll assume it's active. If you want to be robust:
-        # navigator_node.navigator.waitUntilNav2Active()
+    if navigator_node.send_navigation_goal(target_x, target_y, target_yaw_degrees):
+        while rclpy.ok() and not navigator_node.is_goal_done():
+            rclpy.spin_once(navigator_node, timeout_sec=0.1)
+        
+        if navigator_node.is_goal_done():
+            navigator_node.get_logger().info("Goal processing sequence complete.")
+    else:
+        navigator_node.get_logger().error("Failed to send goal.")
 
-        success = navigator_node.go_to_pose(target_x, target_y, target_yaw_degrees)
-        if success:
-            navigator_node.get_logger().info("Navigation task finished successfully.")
-        else:
-            navigator_node.get_logger().info("Navigation task did not succeed.")
-
-    except KeyboardInterrupt:
-        navigator_node.get_logger().info("Keyboard interrupt, shutting down tasks.")
-        # navigator_node.navigator.cancelTask() # Example of cancelling
-    except Exception as e:
-        navigator_node.get_logger().error(f"An error occurred: {e}")
-    finally:
-        # BasicNavigator doesn't require explicit destruction like an action client in the node
-        # but shutting down rclpy and destroying the node is good.
-        # navigator_node.navigator.lifecycleShutdown() # If this node was managing lifecycle
-        navigator_node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
+    navigator_node.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
