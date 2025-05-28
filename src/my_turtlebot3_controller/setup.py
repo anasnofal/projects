@@ -24,7 +24,7 @@ setup(
         'console_scripts': [
             'move_turtlebot = my_turtlebot3_controller.move_turtlebot:main',
             'GoToBinsNode = my_turtlebot3_controller.GoToBinsNode:main',
-            'cmd_vel_relay_node = my_turtlebot3_controller.cmd_vel_relay_node:main',
+            'cmd_vel_relay_node = my_turtlebot3_controller.cmd_vel_relay:main',
         ],
     },
 )
