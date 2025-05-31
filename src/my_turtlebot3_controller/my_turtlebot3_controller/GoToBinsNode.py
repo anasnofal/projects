@@ -94,11 +94,9 @@ def main(args=None):
     rclpy.init(args=args)
     navigator_node = GoToBinsNode()
 
-    # --- DEFINE YOUR TARGET COORDINATES AND YAW (in degrees) HERE ---
-    target_x = 0.5
-    target_y = -0.8
+    target_x = 0.25
+    target_y = -0.4
     target_yaw_degrees = 0.0
-    # --------------------------------------------------------------
 
     if navigator_node.send_navigation_goal(target_x, target_y, target_yaw_degrees):
         # Spin until the goal is done or Ctrl-C
