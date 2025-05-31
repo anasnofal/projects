@@ -4,19 +4,18 @@ from rclpy.node import Node
 from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
-from tf_transformations import quaternion_from_euler # For converting yaw to quaternion
 import math
 import time
 
-from action_msgs.msg import GoalStatus as ActionGoalStatus # Use an alias to be safe
+from action_msgs.msg import GoalStatus as ActionGoalStatus 
 
 class GoToBinsNode(Node):
     def __init__(self):
         super().__init__('GoToBinsNode')
-        self._action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose') # Standard Nav2 action server
+        self._action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose') 
         self.get_logger().info("Coordinate Navigator Node Initialized.")
         self.goal_handle = None
-        self.goal_done_status = None # To store final status (will be an integer from ActionGoalStatus)
+        self.goal_done_status = None 
 
     def wait_for_action_server(self, timeout_sec=5.0):
         self.get_logger().info('Waiting for /navigate_to_pose action server...')
@@ -28,25 +27,24 @@ class GoToBinsNode(Node):
 
     def send_navigation_goal(self, x, y, yaw_degrees):
         if not self.wait_for_action_server():
-            self.goal_done_status = -1 # Indicate failure to send
+            self.goal_done_status = -1 
             return False
 
-        self.goal_done_status = None # Reset status for new goal
+        self.goal_done_status = None 
 
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
-        goal_msg.pose.header.frame_id = 'map' # Goals are in the map frame
+        goal_msg.pose.header.frame_id = 'map' 
 
         goal_msg.pose.pose.position.x = float(x)
         goal_msg.pose.pose.position.y = float(y)
-        goal_msg.pose.pose.position.z = 0.0  # Assuming 2D navigation
+        goal_msg.pose.pose.position.z = 0.0  
 
         yaw_radians = math.radians(float(yaw_degrees))
-        q = quaternion_from_euler(0, 0, yaw_radians)  # Roll, Pitch, Yaw
-        goal_msg.pose.pose.orientation.x = q[0]
-        goal_msg.pose.pose.orientation.y = q[1]
-        goal_msg.pose.pose.orientation.z = q[2]
-        goal_msg.pose.pose.orientation.w = q[3]
+        goal_msg.pose.pose.orientation.x = 0.0
+        goal_msg.pose.pose.orientation.y = 0.0
+        goal_msg.pose.pose.orientation.z = math.sin(yaw_radians/2.0)
+        goal_msg.pose.pose.orientation.w = math.cos(yaw_radians/2.0)
 
         self.get_logger().info(f"Sending goal: X={x}, Y={y}, Yaw={yaw_degrees}°")
         
@@ -61,7 +59,6 @@ class GoToBinsNode(Node):
         self.goal_handle = future.result()
         if not self.goal_handle.accepted:
             self.get_logger().error('Goal rejected by Nav2 server.')
-            # Use the imported ActionGoalStatus constants
             self.goal_done_status = ActionGoalStatus.STATUS_REJECTED
             return
 
@@ -70,10 +67,8 @@ class GoToBinsNode(Node):
         result_future.add_done_callback(self.get_result_callback)
 
     def get_result_callback(self, future):
-        # The status from future.result().status is an integer.
         status_code = future.result().status 
-        # result = future.result().result # NavigateToPose.Result is empty for Nav2
-        self.goal_done_status = status_code # Store the integer status code
+        self.goal_done_status = status_code 
 
         # Compare with the imported ActionGoalStatus constants
         if status_code == ActionGoalStatus.STATUS_SUCCEEDED:
