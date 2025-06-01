@@ -16,6 +16,8 @@ class GoToBinsNode(Node):
         self.get_logger().info("Coordinate Navigator Node Initialized.")
         self.goal_handle = None
         self.goal_done_status = None 
+        #self.current_goal_active = False
+        #self.goal_subscriber = self.create_subscription()
 
     def wait_for_action_server(self, timeout_sec=5.0):
         self.get_logger().info('Waiting for /navigate_to_pose action server...')
