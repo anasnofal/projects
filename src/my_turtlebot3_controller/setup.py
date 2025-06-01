@@ -25,6 +25,9 @@ setup(
             'move_turtlebot = my_turtlebot3_controller.move_turtlebot:main',
             'GoToBinsNode = my_turtlebot3_controller.GoToBinsNode:main',
             'cmd_vel_relay_node = my_turtlebot3_controller.cmd_vel_relay:main',
+            'DecisionNode = my_turtlebot3_controller.DecisionNode:main', 
+            'BinSensorMockNode = my_turtlebot3_controller.bin_sensor_mock_node:main',
+            'navigation_executor_node = my_turtlebot3_controller.NavigationExecutorNode:main'
         ],
     },
 )
