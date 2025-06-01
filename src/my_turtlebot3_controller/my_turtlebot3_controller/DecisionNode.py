@@ -219,4 +219,63 @@ class DecisionNode(Node):
                     self.fr6_check_timer = None
                     
                     reset_cmd = String()
-                    # Assuming bin IDs used by BinSensorNode are "bin_
+                    # Assuming bin IDs used by BinSensorNode are "bin_0", "bin_1", etc.
+                    reset_cmd.data = self.bins_data[self.dispatched_bin_index]['name'] # Or construct string "bin_" + str(index)
+                    self.reset_bin_publisher.publish(reset_cmd)
+                    
+                    self.bins_data[self.dispatched_bin_index]['is_targeted'] = False 
+                    self.reset_task_state() 
+                    self.get_logger().info(f"FR6: Bin {self.dispatched_bin_index} emptying process initiated and task reset.")
+            # else: # Still moving or just arrived and stop not yet confirmed
+                # self.time_entered_stopped_state = None # Reset if it's not considered stopped now
+                # self.get_logger().debug(f"FR6: Robot at bin {self.dispatched_bin_index}, verifying stop or countdown not complete.")
+        else: # Not within proximity
+            self.get_logger().warn(f"FR6 Check: Robot moved out of proximity ({dist:.2f}m > {self.proximity_check_radius}m) from bin {self.dispatched_bin_index}. Aborting FR6 interaction.")
+            if self.fr6_check_timer and not self.fr6_check_timer.is_canceled():
+                self.fr6_check_timer.cancel()
+            self.fr6_check_timer = None
+            if self.dispatched_bin_index is not None and self.dispatched_bin_index in self.bins_data:
+                self.bins_data[self.dispatched_bin_index]['is_targeted'] = False
+            self.reset_task_state()
+
+
+    def reset_task_state(self):
+        self.get_logger().info(f"Resetting DecisionNode task state from '{self.current_task_phase}' to IDLE.")
+        self.current_task_phase = "IDLE"
+        # dispatched_bin_index's 'is_targeted' flag is reset either on FR6 success/failure or Nav failure.
+        # Avoid resetting 'is_targeted' here generally unless it's a clear failure before FR6 completion.
+        # It's typically reset when a final outcome for that bin is known.
+        # self.dispatched_bin_index = None # Cleared after FR6 or nav failure
+        # self.dispatched_bin_target_pose_stamped = None # Cleared after FR6 or nav failure
+        
+        self.at_bin_stop_start_time = None
+        self.last_pose_for_stop_check = None
+        self.last_pose_time_for_stop_check = None
+        self.time_entered_stopped_state = None
+        if self.fr6_check_timer and not self.fr6_check_timer.is_canceled():
+            self.get_logger().info("Cancelling active fr6_check_timer during task reset.")
+            self.fr6_check_timer.cancel()
+        self.fr6_check_timer = None
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    decision_node = DecisionNode()
+    try:
+        rclpy.spin(decision_node)
+    except KeyboardInterrupt:
+        decision_node.get_logger().info("Decision node shutting down due to KeyboardInterrupt.")
+    finally:
+        decision_node.get_logger().info("Cleaning up DecisionNode resources...")
+        if hasattr(decision_node, 'fr6_check_timer') and decision_node.fr6_check_timer is not None and \
+           not decision_node.fr6_check_timer.is_canceled():
+            decision_node.get_logger().info("Cancelling active fr6_check_timer during shutdown.")
+            decision_node.fr6_check_timer.cancel()
+        
+        if rclpy.ok() and hasattr(decision_node, 'destroy_node'): # Check if node was fully initialized
+             decision_node.destroy_node()
+        if rclpy.ok(): # Check if rclpy is still initialized
+             rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
