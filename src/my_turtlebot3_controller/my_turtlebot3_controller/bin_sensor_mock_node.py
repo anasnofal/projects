@@ -15,7 +15,7 @@ class BinSensorMockNode(Node):
         self.declare_parameter('bin_ids_prefix', 'bin_') # e.g. bin_0, bin_1
         self.declare_parameter('max_capacity', 100.0)
         self.declare_parameter('fill_increase_min_per_update', 0.1) # Min % increase
-        self.declare_parameter('fill_increase_max_per_update', 1.5) # Max % increase
+        self.declare_parameter('fill_increase_max_per_update', 1.0) # Max % increase
         
         self.declare_parameter('update_fill_levels_interval_sec', 1.0) # How often to "add trash"
         self.declare_parameter('publish_states_interval_sec', 2.0) # How often to publish all bin states
