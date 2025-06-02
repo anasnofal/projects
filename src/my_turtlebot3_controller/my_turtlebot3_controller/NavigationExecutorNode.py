@@ -113,11 +113,6 @@ class NavigationExecutorNode(Node): # Renamed class
         self.active_goal_pose_for_logging = None
 
 
-    def feedback_callback(self, feedback_msg):
-        # feedback = feedback_msg.feedback
-        # self.get_logger().debug(f"Navigating to goal, Dist_rem: {feedback.distance_remaining:.2f} m")
-        pass
-
 
 def main(args=None):
     rclpy.init(args=args)
@@ -129,8 +124,8 @@ def main(args=None):
     finally:
         # Perform cleanup tasks for the node
         if hasattr(executor_node, '_action_client') and executor_node._action_client:
-             # ActionClient is destroyed when node is destroyed, explicit destroy can be tricky here
-             pass
+            # ActionClient is destroyed when node is destroyed, explicit destroy can be tricky here
+            pass
         executor_node.get_logger().info("Destroying Navigation Executor Node.")
         executor_node.destroy_node()
         if rclpy.ok(): # Check if rclpy has already been shut down by Ctrl-C elsewhere
