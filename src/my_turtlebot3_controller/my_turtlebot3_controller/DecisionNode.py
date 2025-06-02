@@ -47,7 +47,7 @@ class DecisionNode(Node):
             1: {'name': 'bin_1', 'location': (1.0,  1.5, 90.0), 'fill': 0.0, 'is_targeted': False},
             2: {'name': 'bin_2', 'location': (-1.0, 0.8, -90.0), 'fill': 0.0, 'is_targeted': False},
         }
-        self.fill_threshold = 75.0 # Dispatch if fill >= 75%
+        self.fill_threshold = 45.0 
         
         # --- State Variables ---
         self.current_robot_pose = None # Stores current PoseStamped from /amcl_pose

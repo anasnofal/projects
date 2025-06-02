@@ -110,7 +110,7 @@ class BinSensorMockNode(Node):
                     self.get_logger().info(f"Bin '{bin_id_to_reset}' (index {i}) current fill: {bin_data['fill_level']:.1f}%. Resetting to 0%.")
                     bin_data['fill_level'] = 0.0
                 else:
-                     self.get_logger().info(f"Bin '{bin_id_to_reset}' (index {i}) already at 0% or being reset.")
+                    self.get_logger().info(f"Bin '{bin_id_to_reset}' (index {i}) already at 0% or being reset.")
                 found = True
                 break
         

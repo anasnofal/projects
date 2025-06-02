@@ -6,7 +6,6 @@ from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped # For subscribing and for Nav2 goal
 from std_msgs.msg import String # For publishing status
 import math
-# import time # Not strictly needed in the main loop anymore
 
 from action_msgs.msg import GoalStatus as ActionGoalStatus 
 
