@@ -6,7 +6,6 @@ from rclpy.duration import Duration # For time calculations
 from std_msgs.msg import Float32MultiArray, String
 from geometry_msgs.msg import PoseStamped, Point as PosePoint, Quaternion
 import math
-# No tf_transformations needed here as we do manual quaternion calculation
 
 class DecisionNode(Node):
     def __init__(self):
@@ -159,7 +158,7 @@ class DecisionNode(Node):
         if self.current_task_phase not in ["AT_BIN_VERIFYING_STOP", "AT_BIN_TIMING_STOP"]: # Added AT_BIN_TIMING_STOP
             self.get_logger().info(f"FR6 Check: Not in an FR6 active phase (current: {self.current_task_phase}). Cancelling timer if active.")
             if self.fr6_check_timer and not self.fr6_check_timer.is_canceled():
-                 self.fr6_check_timer.cancel()
+                self.fr6_check_timer.cancel()
             self.fr6_check_timer = None
             # It's possible reset_task_state() was already called, if not, call it to be safe
             if self.current_task_phase != "IDLE": # Avoid calling if already reset
