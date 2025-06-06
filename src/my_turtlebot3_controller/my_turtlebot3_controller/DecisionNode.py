@@ -33,7 +33,6 @@ class DecisionNode(Node):
         self.reset_bin_publisher = self.create_publisher(String, '/set_bin_level_zero', 10)
 
         # --- Configuration ---
-        # IMPORTANT: Populate with YOUR actual bin map coordinates and names!
         self.bins_data = {
             0: {'name': 'bin_0', 'location': (0.25, -0.4, 0.0),  'fill': 0.0},
             1: {'name': 'bin_1', 'location': (1.0,  1.5, 90.0), 'fill': 0.0},
@@ -46,11 +45,9 @@ class DecisionNode(Node):
         self.current_task_phase = "IDLE" # IDLE, WAITING_FOR_NAV_SUCCESS, WAITING_AT_BIN
         self.dispatched_bin_index = None
         
-        # Timer for the 10-second wait at the bin
         self.at_bin_wait_timer = None 
 
-        # --- Main Decision Timer ---
-        self.decision_timer = self.create_timer(5.0, self.make_decision_cycle)
+        self.decision_timer = self.create_timer(5.0, self.make_decision_cycle) # main timer 
 
         self.get_logger().info("Decision Node Initialized. Bin data:")
         for i, data in self.bins_data.items():
@@ -65,15 +62,12 @@ class DecisionNode(Node):
         nav_status = msg.data
         self.get_logger().info(f"Received Nav Executor Status: '{nav_status}' (Current Phase: '{self.current_task_phase}')")
 
-        # Only act on a status if we are expecting the robot to be navigating
         if self.current_task_phase == "WAITING_FOR_NAV_SUCCESS":
             if nav_status == "SUCCEEDED_AT_POSE":
                 self.get_logger().info(f"Navigation to bin {self.dispatched_bin_index} succeeded. Starting {self.required_stop_duration_sec}s wait.")
-                # Transition state and start the 10-second wait timer
                 self.current_task_phase = "WAITING_AT_BIN"
-                if self.at_bin_wait_timer is not None: # Cancel old timer if it exists for some reason
+                if self.at_bin_wait_timer is not None: 
                     self.at_bin_wait_timer.cancel()
-                # Create a new ONE-SHOT timer that will call a function after 10 seconds
                 self.at_bin_wait_timer = self.create_timer(self.required_stop_duration_sec, self.ten_second_wait_is_over_callback)
 
             elif nav_status in ["FAILED_NAVIGATION", "ABORTED_NAVIGATION", "CANCELED_NAVIGATION", "REJECTED", "IDLE"]:
@@ -84,12 +78,10 @@ class DecisionNode(Node):
         """This function is called only once by the timer after the 10s wait."""
         self.get_logger().info(f"{self.required_stop_duration_sec}s wait at bin {self.dispatched_bin_index} is complete. Commanding bin empty.")
         
-        # It's a one-shot timer, but good practice to cancel to be sure
         if self.at_bin_wait_timer and not self.at_bin_wait_timer.is_canceled():
             self.at_bin_wait_timer.cancel()
         self.at_bin_wait_timer = None
 
-        # Command the bin to be reset
         if self.dispatched_bin_index is not None:
             bin_id_str = self.bins_data[self.dispatched_bin_index]['name']
             reset_cmd = String()
@@ -133,7 +125,7 @@ class DecisionNode(Node):
             goal_pose_msg.pose.orientation.w = math.cos(yaw_rad / 2.0)
             
             self.goal_publisher.publish(goal_pose_msg)
-            self.current_task_phase = "WAITING_FOR_NAV_SUCCESS" # Transition state
+            self.current_task_phase = "WAITING_FOR_NAV_SUCCESS" 
             self.get_logger().info(f"Decision: Dispatched robot to {self.bins_data[self.dispatched_bin_index]['name']} (Index: {self.dispatched_bin_index})")
 
     def reset_task_state(self):
@@ -149,7 +141,6 @@ def main(args=None):
     except KeyboardInterrupt:
         decision_node.get_logger().info("Decision node shutting down.")
     finally:
-        # Important: cancel timers on shutdown to prevent issues
         if decision_node.decision_timer and not decision_node.decision_timer.is_canceled():
             decision_node.decision_timer.cancel()
         if decision_node.at_bin_wait_timer and not decision_node.at_bin_wait_timer.is_canceled():
