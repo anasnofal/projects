@@ -43,11 +43,6 @@ class NavigationExecutorNode(Node): # Renamed class
             self.get_logger().warn("Navigation already in progress. New goal ignored.")
             return
         
-    def feedback_callback(self, feedback_msg):
-        # feedback = feedback_msg.feedback
-        # self.get_logger().debug(f"Navigating to goal, Dist_rem: {feedback.distance_remaining:.2f} m")
-        pass
-
         self.active_goal_pose_for_logging = msg # Store for logging context
         self.get_logger().info(f"Received dispatch goal: X={msg.pose.position.x:.2f}, Y={msg.pose.position.y:.2f}")
         
@@ -116,7 +111,11 @@ class NavigationExecutorNode(Node): # Renamed class
         self._publish_status(final_status_str)
         self._publish_status("IDLE") # Ready for new goal
         self.active_goal_pose_for_logging = None
-
+        
+    def feedback_callback(self, feedback_msg):
+        # feedback = feedback_msg.feedback
+        # self.get_logger().debug(f"Navigating to goal, Dist_rem: {feedback.distance_remaining:.2f} m")
+        pass
 
 
 def main(args=None):
