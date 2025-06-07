@@ -41,7 +41,6 @@ class DecisionNode(Node):
         self.fill_threshold = 75.0 
         self.required_stop_duration_sec = 10.0 # The wait time at the bin
         
-        # --- State Variables ---
         self.current_task_phase = "IDLE" # IDLE, WAITING_FOR_NAV_SUCCESS, WAITING_AT_BIN
         self.dispatched_bin_index = None
         
