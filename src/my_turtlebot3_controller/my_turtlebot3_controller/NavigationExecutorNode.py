@@ -113,9 +113,9 @@ class NavigationExecutorNode(Node):
         self.active_goal_pose_for_logging = None
 
     def feedback_callback(self, feedback_msg):
-        # feedback = feedback_msg.feedback
-        # self.get_logger().debug(f"Navigating to goal, Dist_rem: {feedback.distance_remaining:.2f} m")
-        pass
+        feedback = feedback_msg.feedback
+        self.get_logger().debug(f"Navigating to goal, Dist_rem: {feedback.distance_remaining:.2f} m")
+        #pass
 
 
 def main(args=None):
