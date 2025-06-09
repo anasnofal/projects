@@ -16,7 +16,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     
     slam_params_file = LaunchConfiguration('slam_params_file',
-        default=os.path.join(my_controller_pkg_dir, 'config', 'slam_simulation.yaml'))
+        default=os.path.join(my_controller_pkg_dir, 'config', 'slam_config_dt.yaml'))
         
     rviz_config_file = LaunchConfiguration('rviz_config',
         default=os.path.join(nav2_bringup_pkg_dir, 'rviz', 'nav2_default_view.rviz'))
