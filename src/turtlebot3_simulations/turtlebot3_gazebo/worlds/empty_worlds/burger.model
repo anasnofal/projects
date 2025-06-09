@@ -48,127 +48,109 @@
       <pose>0.75 -0.175 0.15 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <box>
-              <size>1.8 0.05 0.30</size>
-            </box>
-          </geometry>
+          <geometry><box><size>1.8 0.05 0.30</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>1.8 0.05 0.30</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.7 0.7 0.7 1</ambient>
-            <diffuse>0.7 0.7 0.7 1</diffuse>
-          </material>
+          <geometry><box><size>1.8 0.05 0.30</size></box></geometry>
+          <material><ambient>0.7 0.7 0.7 1</ambient><diffuse>0.7 0.7 0.7 1</diffuse></material>
         </visual>
       </link>
     </model>
-
     <model name="north_wall">
       <static>true</static>
       <pose>0.75 1.675 0.15 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <box>
-              <size>1.8 0.05 0.30</size>
-            </box>
-          </geometry>
+          <geometry><box><size>1.8 0.05 0.30</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>1.8 0.05 0.30</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.7 0.7 0.7 1</ambient>
-            <diffuse>0.7 0.7 0.7 1</diffuse>
-          </material>
+          <geometry><box><size>1.8 0.05 0.30</size></box></geometry>
+          <material><ambient>0.7 0.7 0.7 1</ambient><diffuse>0.7 0.7 0.7 1</diffuse></material>
         </visual>
       </link>
     </model>
-
     <model name="west_wall">
       <static>true</static>
       <pose>-0.175 0.75 0.15 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.05 1.8 0.30</size>
-            </box>
-          </geometry>
+          <geometry><box><size>0.05 1.8 0.30</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>0.05 1.8 0.30</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.7 0.7 0.7 1</ambient>
-            <diffuse>0.7 0.7 0.7 1</diffuse>
-          </material>
+          <geometry><box><size>0.05 1.8 0.30</size></box></geometry>
+          <material><ambient>0.7 0.7 0.7 1</ambient><diffuse>0.7 0.7 0.7 1</diffuse></material>
         </visual>
       </link>
     </model>
-
     <model name="east_wall">
       <static>true</static>
       <pose>1.675 0.75 0.15 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.05 1.8 0.30</size>
-            </box>
-          </geometry>
+          <geometry><box><size>0.05 1.8 0.30</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>0.05 1.8 0.30</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.7 0.7 0.7 1</ambient>
-            <diffuse>0.7 0.7 0.7 1</diffuse>
-          </material>
+          <geometry><box><size>0.05 1.8 0.30</size></box></geometry>
+          <material><ambient>0.7 0.7 0.7 1</ambient><diffuse>0.7 0.7 0.7 1</diffuse></material>
         </visual>
       </link>
     </model>
-
-    <include>
-      <name>Trash bin 1</name>
-      <static>true</static>
-      <uri>model://trash_bin</uri>
-      <pose>0.05 1.5 0.0 0 0 1.57</pose>
-    </include>
-
-    <include>
-      <name>Trash bin 2</name>
-      <static>true</static>
-      <uri>model://trash_bin</uri>
-      <pose>1.5 1.5 0.0 0 0 0</pose>
-    </include>
-
-    <include>
-      <name>Trash bin 3</name>
-      <static>true</static>
-      <uri>model://trash_bin</uri>
-      <pose>1.5 0.0 0.0 0 0 -1.57</pose>
-    </include>
-
     <include>
       <name>turtlebot3_burger</name>
       <uri>model://turtlebot3_burger</uri>
       <pose>0.05 0.05 0.01 0 0 1.5</pose>
     </include>
+
+    <model name='Trash bin 1'>
+      <static>true</static>
+      <pose>0.05 1.5 0.0 0 0 1.57</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <mesh><uri>model://first_2015_trash_can/meshes/trash_can.dae</uri></mesh>
+          </geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh><uri>model://first_2015_trash_can/meshes/trash_can.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='Trash bin 2'>
+      <static>true</static>
+      <pose>1.5 1.5 0.0 0 0 0</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <mesh><uri>model://first_2015_trash_can/meshes/trash_can.dae</uri></mesh>
+          </geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh><uri>model://first_2015_trash_can/meshes/trash_can.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='Trash bin 3'>
+      <static>true</static>
+      <pose>1.5 0.0 0.0 0 0 -1.57</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <mesh><uri>model://first_2015_trash_can/meshes/trash_can.dae</uri></mesh>
+          </geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh><uri>model://first_2015_trash_can/meshes/trash_can.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
 
   </world>
 </sdf>
