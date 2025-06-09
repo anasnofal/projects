@@ -34,11 +34,11 @@ class DecisionNode(Node):
 
         # --- Configuration ---
         self.bins_data = {
-            0: {'name': 'bin_0', 'location': (0.25, -0.4, 0.0),  'fill': 0.0},
-            1: {'name': 'bin_1', 'location': (1.0,  1.5, 90.0), 'fill': 0.0},
-            2: {'name': 'bin_2', 'location': (-1.0, 0.8, -90.0), 'fill': 0.0},
+            0: {'name': 'bin_0', 'location': (0.05, 1.5, 90.0),  'fill': 0.0},
+            1: {'name': 'bin_1', 'location': (1.5,  1.5, 0.0), 'fill': 0.0},
+            2: {'name': 'bin_2', 'location': (1.5, 0.0, -90.0), 'fill': 0.0},
         }
-        self.fill_threshold = 75.0 
+        self.fill_threshold = 50.0 
         self.required_stop_duration_sec = 10.0 # The wait time at the bin
         
         self.current_task_phase = "IDLE" # IDLE, WAITING_FOR_NAV_SUCCESS, WAITING_AT_BIN
