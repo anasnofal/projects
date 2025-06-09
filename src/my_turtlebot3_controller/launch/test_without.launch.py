@@ -2,7 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -16,7 +16,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     
     slam_params_file = LaunchConfiguration('slam_params_file',
-        default=os.path.join(my_controller_pkg_dir, 'config', 'slam_config_dt.yaml'))
+        default=os.path.join(my_controller_pkg_dir, 'config', 'slam_simulation.yaml'))
         
     rviz_config_file = LaunchConfiguration('rviz_config',
         default=os.path.join(nav2_bringup_pkg_dir, 'rviz', 'nav2_default_view.rviz'))
@@ -61,14 +61,21 @@ def generate_launch_description():
         parameters=[{'use_sim_time': use_sim_time}],
         output='screen')
 
-    start_nav2_bringup_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(nav2_bringup_pkg_dir, 'launch', 'navigation_launch.py')
-        ),
-        launch_arguments={
-            'use_sim_time': use_sim_time,
-            'params_file': slam_params_file
-        }.items(),
+    # This is the new delayed action for Nav2
+    delayed_nav2_bringup_cmd = TimerAction(
+        period=5.0,  # Wait for 5 seconds before executing the action
+        actions=[
+            LogInfo(msg='Timer expired. Launching Nav2...'),
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(nav2_bringup_pkg_dir, 'launch', 'navigation_launch.py')
+                ),
+                launch_arguments={
+                    'use_sim_time': use_sim_time,
+                    'params_file': slam_params_file
+                }.items(),
+            )
+        ]
     )
 
     ld = LaunchDescription()
@@ -77,9 +84,13 @@ def generate_launch_description():
     ld.add_action(declare_slam_params_file_cmd)
     ld.add_action(declare_rviz_config_file_cmd)
     
+    # Launch Gazebo, SLAM, and RViz immediately
     ld.add_action(start_gazebo_cmd)
     ld.add_action(start_slam_toolbox_cmd)
     ld.add_action(start_rviz_cmd)
-    ld.add_action(start_nav2_bringup_cmd)
+    
+    # Add the delayed Nav2 launch
+    ld.add_action(LogInfo(msg='Waiting 5 seconds before launching Nav2 to allow other nodes to start...'))
+    ld.add_action(delayed_nav2_bringup_cmd)
 
     return ld
