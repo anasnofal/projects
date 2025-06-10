@@ -67,8 +67,14 @@ This step starts the core simulation (Gazebo), the navigation stack (Nav2), and 
    # Ensure TURTLEBOT3_MODEL is set, e.g., export TURTLEBOT3_MODEL=burger
    ros2 launch my_custom_turtlebot3_gazebo empty_world.launch.py
    ```
-
-2. **Launch the Navigation Stack (Nav2)**
+2. ** Launch the Real Robot**
+   In your **another terminal**, launch the real robot using these commands.
+   ```bash
+   # Ensure TURTLEBOT3_MODEL is set, e.g., export TURTLEBOT3_MODEL=burger
+   ros2 launch turtlebot3_bringup robot.launch.py
+   ```
+    
+3. **Launch the Navigation Stack (Nav2)**
    In a **new terminal**, launch Nav2 and provide it with your pre-made map.
 
    ```bash
