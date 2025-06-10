@@ -19,7 +19,7 @@ Follow these steps to set up the project workspace.
 1.  **Clone the Repository** 
 
     ```bash
-    git clone [https://github.com/anasnofal/projects.git](https://github.com/anasnofal/projects.git)
+    git clone https://github.com/anasnofal/projects.git
     ```
 
 2.  **Navigate to Workspace Root**
