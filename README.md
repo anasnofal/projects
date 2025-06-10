@@ -90,8 +90,8 @@ This step is **critical** for Nav2 to know where the robot is.
 
 1. Wait for Gazebo and RViz to fully load. The robot in RViz might appear at the wrong spot initially.
 2. In the RViz toolbar, click the **"2D Pose Estimate"** button.
-3. Look at the Gazebo window to see the robot's actual starting position and orientation.
-4. In the RViz map, **click at that same location and drag an arrow** to match the robot's pose in Gazebo.
+3. Look at the Gazebo window to see the robot's actual starting position and put the real robot in the same position and orientation.
+4. In the RViz map, **click at that same location and drag an arrow** to match the robot's pose in Gazebo and real life .
 5. You should see the robot's laser scan (dots) snap into alignment with the map walls. The robot is now localized.
 
 ### Step 4: Run The Application Nodes
