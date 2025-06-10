@@ -74,7 +74,7 @@ This step starts the core simulation (Gazebo), the navigation stack (Nav2), and 
    ```bash
    # This command uses the map from your 'my_turtlebot3_controller' package.
    # Adjust the path if necessary.
-   ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=true map:=$(ros2 pkg prefix my_turtlebot3_controller)/share/my_turtlebot3_controller/maps/big_map.yaml
+   ros2 launch turtlebot3_navigation2 navigation2.launch.py map:=$(ros2 pkg prefix my_turtlebot3_controller)/share/my_turtlebot3_controller/maps/big_map.yaml
    ```
 
 
