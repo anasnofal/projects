@@ -140,4 +140,14 @@ After starting all nodes and localizing the robot, the system should start opera
 * **Map Not Loading in RViz:**
   If RViz is empty or shows map errors, check the terminal where you launched Nav2 (Step 2.2). Look for errors from `[map_server]`. This usually indicates a wrong path to the `map.yaml` file in your launch command.
 
+* **Robot Freezes or Navigation Fails:**
+
+    If the robot stops and the DecisionNode seems stuck waiting for a navigation result, the robot's localization may have drifted.
+
+    1.In the Rviz , click the "Pause" button.
+  
+    2.In RViz, re-localize the robot using the "2D Pose Estimate" tool to give it a fresh, accurate position
+  
+    3.In the Rviz, click the "Resume" button. This may help Nav2 recover and continue its task.
+
 
