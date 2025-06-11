@@ -55,6 +55,7 @@ Before running any command, you must source the workspace's setup file. This mak
 ```bash
 cd ~/projects
 source install/setup.bash
+```
 
 ### Step 2: Launch the Environment and Navigation
 

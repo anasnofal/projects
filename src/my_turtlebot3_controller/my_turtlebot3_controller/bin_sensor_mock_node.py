@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import rclpy
+import random
+
 from rclpy.node import Node
 from std_msgs.msg import String, Float32MultiArray, MultiArrayDimension, MultiArrayLayout
-import random
-import time 
 
 class BinSensorMockNode(Node):
     def __init__(self):
@@ -57,22 +57,18 @@ class BinSensorMockNode(Node):
         self.log_bin_states("Initial")
         self.publish_all_bin_states_tick() 
 
+    # Periodically adds a random amount of trash to each bin.
     def update_fill_levels_tick(self):
-        """Periodically adds a random amount of trash to each bin."""
-        changed = False
         for bin_data in self.bins: 
             if bin_data['fill_level'] < self.max_capacity:
                 increase = random.uniform(self.fill_increase_min, self.fill_increase_max)
                 bin_data['fill_level'] += increase
+              
                 if bin_data['fill_level'] > self.max_capacity:
                     bin_data['fill_level'] = self.max_capacity
-                changed = True
-        
-        if changed:
-            pass # Actual publishing is handled by publish_all_bin_states_tick
 
+    # Constructs and publishes the Float32MultiArray message.
     def publish_all_bin_states_tick(self):
-        """Constructs and publishes the Float32MultiArray message."""
         fill_levels_data = [bin_data['fill_level'] for bin_data in self.bins]
 
         msg = Float32MultiArray()
@@ -94,6 +90,7 @@ class BinSensorMockNode(Node):
     def reset_bin_callback(self, msg: String):
         bin_id_to_reset = msg.data 
         found = False
+
         for i, bin_data in enumerate(self.bins):
             if bin_data['id'] == bin_id_to_reset:
                 if bin_data['fill_level'] > 0.0:
@@ -117,6 +114,7 @@ class BinSensorMockNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     bin_sensor_node = BinSensorMockNode()
+
     try:
         rclpy.spin(bin_sensor_node)
     except KeyboardInterrupt:

@@ -1,35 +1,34 @@
 #!/usr/bin/env python3
+import math
+import time
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
-
 from std_msgs.msg import Float32MultiArray, String
 from geometry_msgs.msg import PoseStamped, Quaternion
-import math
-import time
 
 class DecisionNode(Node):
     def __init__(self):
         super().__init__('decision_node')
 
-        # Publisher to send navigation goals to NavigationExecutorNode
+        # Publisher - send navigation goals to NavigationExecutorNode
         self.goal_publisher = self.create_publisher(PoseStamped, '/dispatch_nav_goal', 10)
 
-        # Subscriber to bin fill levels (from BinSensorMockNode)
+        # Subscriber - bin fill levels (from BinSensorMockNode)
         self.fill_level_subscriber = self.create_subscription(
             Float32MultiArray,
             '/bin_fill_levels',
             self.fill_level_callback,
             10)
         
-        # Subscriber to get status FROM NavigationExecutorNode
+        # Subscriber - get status FROM NavigationExecutorNode
         self.nav_status_subscriber = self.create_subscription(
             String, 
             '/navigation_executor_status',
             self.navigation_status_callback,
             10)
         
-        # Publisher to command BinSensorMockNode to reset fill level
+        # Publisher - reset fill level via BinSensorMockNode
         self.reset_bin_publisher = self.create_publisher(String, '/set_bin_level_zero', 10)
 
         # --- Configuration ---
@@ -39,12 +38,12 @@ class DecisionNode(Node):
             2: {'name': 'bin_2', 'location': (1.5, 0.0, -90.0), 'fill': 0.0},
         }
         self.fill_threshold = 50.0 
+
         self.required_stop_duration_sec = 10.0 # The wait time at the bin
+        self.at_bin_wait_timer = None 
         
         self.current_task_phase = "IDLE" # IDLE, WAITING_FOR_NAV_SUCCESS, WAITING_AT_BIN
         self.dispatched_bin_index = None
-        
-        self.at_bin_wait_timer = None 
 
         self.decision_timer = self.create_timer(5.0, self.make_decision_cycle) # main timer 
 
@@ -53,9 +52,9 @@ class DecisionNode(Node):
             self.get_logger().info(f"  {data['name']} (Index {i}): Loc {data['location']}, Fill {data['fill']}%")
 
     def fill_level_callback(self, msg: Float32MultiArray):
-        for i, level in enumerate(msg.data):
-            if i in self.bins_data:
-                self.bins_data[i]['fill'] = level
+        for bin, level in enumerate(msg.data):
+            if bin in self.bins_data:
+                self.bins_data[bin]['fill'] = level
 
     def navigation_status_callback(self, msg: String):
         nav_status = msg.data
@@ -65,6 +64,7 @@ class DecisionNode(Node):
             if nav_status == "SUCCEEDED_AT_POSE":
                 self.get_logger().info(f"Navigation to bin {self.dispatched_bin_index} succeeded. Starting {self.required_stop_duration_sec}s wait.")
                 self.current_task_phase = "WAITING_AT_BIN"
+
                 if self.at_bin_wait_timer is not None: 
                     self.at_bin_wait_timer.cancel()
                 self.at_bin_wait_timer = self.create_timer(self.required_stop_duration_sec, self.ten_second_wait_is_over_callback)
@@ -73,8 +73,8 @@ class DecisionNode(Node):
                 self.get_logger().warn(f"Navigation task for bin {self.dispatched_bin_index} did not succeed (Status: '{nav_status}'). Resetting task.")
                 self.reset_task_state()
 
+    # This function is called only once by the timer after the 10s wait.
     def ten_second_wait_is_over_callback(self):
-        """This function is called only once by the timer after the 10s wait."""
         self.get_logger().info(f"{self.required_stop_duration_sec}s wait at bin {self.dispatched_bin_index} is complete. Commanding bin empty.")
         
         if self.at_bin_wait_timer and not self.at_bin_wait_timer.is_canceled():
@@ -85,6 +85,7 @@ class DecisionNode(Node):
             bin_id_str = self.bins_data[self.dispatched_bin_index]['name']
             reset_cmd = String()
             reset_cmd.data = bin_id_str
+            
             self.reset_bin_publisher.publish(reset_cmd)
             self.get_logger().info(f"Reset command sent for bin '{bin_id_str}'. Task fully complete.")
         
@@ -135,6 +136,7 @@ class DecisionNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     decision_node = DecisionNode()
+    
     try:
         rclpy.spin(decision_node)
     except KeyboardInterrupt:

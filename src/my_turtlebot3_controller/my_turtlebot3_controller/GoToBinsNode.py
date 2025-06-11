@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 import rclpy
+import math
+
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
-import math
-import time
-
 from action_msgs.msg import GoalStatus as ActionGoalStatus 
 
 class GoToBinsNode(Node):
     def __init__(self):
         super().__init__('GoToBinsNode')
+
         self._action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose') 
         self.get_logger().info("Coordinate Navigator Node Initialized.")
+
         self.goal_handle = None
         self.goal_done_status = None 
         #self.current_goal_active = False
@@ -21,9 +22,11 @@ class GoToBinsNode(Node):
 
     def wait_for_action_server(self, timeout_sec=5.0):
         self.get_logger().info('Waiting for /navigate_to_pose action server...')
+
         if not self._action_client.wait_for_server(timeout_sec=timeout_sec):
             self.get_logger().error('/navigate_to_pose action server not available after waiting.')
             return False
+
         self.get_logger().info('/navigate_to_pose action server is available.')
         return True
 
@@ -59,12 +62,14 @@ class GoToBinsNode(Node):
 
     def goal_response_callback(self, future):
         self.goal_handle = future.result()
+
         if not self.goal_handle.accepted:
             self.get_logger().error('Goal rejected by Nav2 server.')
             self.goal_done_status = ActionGoalStatus.STATUS_REJECTED
             return
 
         self.get_logger().info('Goal accepted by Nav2 server. Waiting for result...')
+
         result_future = self.goal_handle.get_result_async()
         result_future.add_done_callback(self.get_result_callback)
 

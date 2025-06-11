@@ -5,9 +5,8 @@ from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped 
 from std_msgs.msg import String 
+from action_msgs.msg import GoalStatus as ActionGoalStatus
 import math
-
-from action_msgs.msg import GoalStatus as ActionGoalStatus 
 
 class NavigationExecutorNode(Node): 
     def __init__(self):
@@ -18,14 +17,14 @@ class NavigationExecutorNode(Node):
         self.current_nav_status = "IDLE" # IDLE, NAVIGATING, SUCCEEDED, FAILED, ABORTED
         self.active_goal_pose_for_logging = None 
 
-        # Subscriber for incoming navigation goals
+        # Subscriber - incoming navigation goals
         self.goal_subscriber = self.create_subscription(
             PoseStamped,
             '/dispatch_nav_goal', 
             self.dispatch_goal_callback,
             10)
         
-        # Publisher for this node's status
+        # Publisher - navigation status
         self.status_publisher = self.create_publisher(String, '/navigation_executor_status', 10)
 
         self.get_logger().info("Navigation Executor Node Initialized. Waiting for goals on /dispatch_nav_goal.")
@@ -34,7 +33,9 @@ class NavigationExecutorNode(Node):
     def _publish_status(self, status_str):
         msg = String()
         msg.data = status_str
+
         self.status_publisher.publish(msg)
+
         self.get_logger().info(f"Publishing Status: {status_str}")
         self.current_nav_status = status_str
 
@@ -55,10 +56,12 @@ class NavigationExecutorNode(Node):
 
     def wait_for_action_server(self, timeout_sec=5.0):
         self.get_logger().info('Waiting for /navigate_to_pose action server...')
+
         if not self._action_client.wait_for_server(timeout_sec=timeout_sec):
             self.get_logger().error('/navigate_to_pose action server not available after waiting.')
             self._publish_status("IDLE_SERVER_UNAVAILABLE") 
             return False
+
         self.get_logger().info('/navigate_to_pose action server is available.')
         return True
 
@@ -81,6 +84,7 @@ class NavigationExecutorNode(Node):
 
     def goal_response_callback(self, future):
         self.goal_handle = future.result()
+
         if not self.goal_handle.accepted:
             self.get_logger().error('Goal rejected by Nav2 server.')
             self._publish_status("REJECTED") 
@@ -89,6 +93,7 @@ class NavigationExecutorNode(Node):
             return
 
         self.get_logger().info('Goal accepted by Nav2 server. Waiting for result...')
+
         result_future = self.goal_handle.get_result_async()
         result_future.add_done_callback(self.get_result_callback)
 
@@ -115,12 +120,11 @@ class NavigationExecutorNode(Node):
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
         self.get_logger().debug(f"Navigating to goal, Dist_rem: {feedback.distance_remaining:.2f} m")
-        #pass
-
 
 def main(args=None):
     rclpy.init(args=args)
     executor_node = NavigationExecutorNode() 
+
     try:
         rclpy.spin(executor_node) 
     except KeyboardInterrupt:
