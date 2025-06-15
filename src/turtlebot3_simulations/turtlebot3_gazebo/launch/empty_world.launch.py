@@ -36,6 +36,15 @@ def generate_launch_description():
     launch_file_dir = os.path.join(get_package_share_directory('my_custom_turtlebot3_gazebo'), 'launch')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
+    gzserver_cmd = [
+        'gzserver',
+        '--verbose',
+        '-s', 'libgazebo_ros_init.so',     
+        '-s', 'libgazebo_ros_factory.so',   
+        '-s', 'libgazebo_ros_state.so',     
+        world
+    ]
+
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
