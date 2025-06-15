@@ -46,6 +46,10 @@ def generate_launch_description():
     ]
 
     return LaunchDescription([
+        ExecuteProcess(
+            cmd=gzserver_cmd,
+            output='screen'
+        ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(pkg_gazebo_ros, 'launch', 'gzserver.launch.py')
