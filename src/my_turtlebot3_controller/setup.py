@@ -29,7 +29,8 @@ setup(
             'cmd_vel_relay_node = my_turtlebot3_controller.cmd_vel_relay:main',
             'DecisionNode = my_turtlebot3_controller.DecisionNode:main', 
             'BinSensorMockNode = my_turtlebot3_controller.bin_sensor_mock_node:main',
-            'navigation_executor_node = my_turtlebot3_controller.NavigationExecutorNode:main'
+            'navigation_executor_node = my_turtlebot3_controller.NavigationExecutorNode:main',
+            'odom_node = my_turtlebot3_controller.OdomToGazeboPoseNode:main'
         ],
     },
 )
