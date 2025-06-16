@@ -58,5 +58,6 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([launch_file_dir, '/robot_state_publisher.launch.py']),
             launch_arguments={'use_sim_time': use_sim_time}.items(),
+            remappings=[('/joint_states', '/my_tb3/joint_states')]
         ),
     ])
