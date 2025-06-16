@@ -389,9 +389,9 @@
       <publish_odom_tf>true</publish_odom_tf>
       <publish_wheel_tf>false</publish_wheel_tf>
 
-      <odometry_topic>/odom</odometry_topic>
-      <odometry_frame>odom</odometry_frame>
-      <robot_base_frame>base_footprint</robot_base_frame>
+      <odometry_topic>/my_tb3/odom</odometry_topic>
+      <odometry_frame>my_tb3/odom</odometry_frame>
+      <robot_base_frame>my_tb3/base_footprint</robot_base_frame>
 
     </plugin>
 
