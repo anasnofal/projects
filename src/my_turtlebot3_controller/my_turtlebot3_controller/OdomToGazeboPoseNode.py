@@ -47,8 +47,8 @@ class OdomToGazeboPoseNode(Node):
         self.declare_parameter('sim_odom_topic', '/my_tb3/odom')
         self.declare_parameter('sim_cmd_vel_topic', '/my_tb3/cmd_vel')
         
-        self.declare_parameter('proportional_gain_linear', 1.5) 
-        self.declare_parameter('proportional_gain_angular', 2.0) 
+        self.declare_parameter('proportional_gain_linear', 0.8) 
+        self.declare_parameter('proportional_gain_angular', 1.0) 
         self.declare_parameter('goal_tolerance_linear', 0.05)   
         self.declare_parameter('goal_tolerance_angular', 0.05)  
 
