@@ -24,6 +24,7 @@ from launch.actions import ExecuteProcess
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 
 TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
 
@@ -36,6 +37,24 @@ def generate_launch_description():
     launch_file_dir = os.path.join(get_package_share_directory('my_custom_turtlebot3_gazebo'), 'launch')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
+    urdf_file_name = 'turtlebot3_' + TURTLEBOT3_MODEL + '.urdf'
+    urdf_path = os.path.join(
+        get_package_share_directory('turtlebot3_description'),
+        'urdf',
+        urdf_file_name)
+    
+    robot_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+        arguments=[urdf_path], # Pass the URDF file to the node
+        # Apply the remapping here, where it is a valid argument
+        remappings=[
+            ('/joint_states', '/my_tb3/joint_states')
+        ]
+    )
 
     return LaunchDescription([
         IncludeLaunchDescription(
@@ -55,9 +74,12 @@ def generate_launch_description():
             cmd=['ros2', 'param', 'set', '/gazebo', 'use_sim_time', use_sim_time],
             output='screen'),
 
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([launch_file_dir, '/robot_state_publisher.launch.py']),
-            launch_arguments={'use_sim_time': use_sim_time}.items(),
-            remappings=[('/joint_states', '/my_tb3/joint_states')]
-        ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource(
+        #         os.path.join(launch_file_dir, 'robot_state_publisher.launch.py')
+        #     ),
+        #     launch_arguments={'use_sim_time': use_sim_time}.items(),
+        #     remappings=[('/joint_states', '/my_tb3/joint_states')]
+        # ),
+        robot_state_publisher_node,
     ])
