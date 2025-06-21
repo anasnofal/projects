@@ -19,7 +19,11 @@ A significant challenge was managing the complexity and timing of our multi-node
 
 #### **What Was Not Completed**
 
-While our communication system worked for the core task in simulation, we did not achieve a fully **robust, production-ready communication link.** The intermittent failures of the `cmd_vel_relay` node, which would occasionally stop working and require a system restart, meant the system lacked the reliability needed for long-duration, autonomous operation without supervision.
+While the communication channels for dispatching missions (Virtual -> Real) and mirroring pose (Real -> Virtual) were functional, we did not implement communication for more advanced state synchronization as required by a high-fidelity digital twin. Specifically:
+
+Internal Hardware State Channel: We did not establish a communication link for internal robot states. For example, there is no mechanism to transmit a "LIDAR Failure" or "Low Battery Voltage" status from the physical robot to have the virtual twin reflect that same hardware fault.
+
+Shared Environmental Perception Channel: There is no communication channel to send information about dynamic, real-world obstacles (detected by the real robot) to the Gazebo environment. The digital twin remains unaware of unexpected changes in the physical robot's surroundings.
 
 #### **Future Improvements**
 
@@ -52,13 +56,8 @@ We did not achieve robust state synchronization when integrating with the physic
 
 #### **Future Improvements **
 
-1.  **Implement Closed-Loop State Synchronization:** The most critical future work is to replace the open-loop `cmd_vel_relay` node with a closed-loop feedback controller. We already designed the `PoseControllerNode` for this purpose. This node would:
-    * Subscribe to the real robot's `/odom` topic to get its measured state.
-    * Subscribe to the virtual robot's `/my_tb3/odom` topic to get its current state.
-    * Continuously calculate the error between the two poses and publish corrective `cmd_vel` commands to the virtual robot to minimize this error.
-    This would create a high-fidelity mirror of the real robot's *actual measured pose*, directly solving the state divergence issue we observed.
+1.  **Implement Closed-Loop State Synchronization:** Implement Closed-Loop State Synchronization: The most critical future work is to replace the open-loop cmd_vel_relay with a closed-loop feedback controller. This new system would continuously compare the real robot's pose to the virtual robot's pose and publish corrective velocity commands to the twin to minimize any error. A more advanced implementation would not use the raw, drifting odometry for this comparison, but would instead use the robot's globally-corrected pose from the TF tree (map -> base_footprint). This would ensure the twin mirrors the true, drift-corrected position, creating a much higher-fidelity synchronization.
 
-2.  **Add a Localization Sanity Check:** To prevent the kind of state divergence we saw when the Digital robot was poorly localized, we would add a "Sanity Check" node. This node would monitor the TF transforms for both the real robot (`map` -> `base_footprint`) and the virtual robot (`map` -> `my_tb3/base_footprint`). If the distance between the two robots ever exceeds a certain threshold , it would publish a system-wide "PAUSE" or "WARNING" signal, preventing the `DecisionNode` from dispatching new tasks until the digital robot's localization is corrected.
 
 ## **3. Environmental & Object Interaction**
 
@@ -74,4 +73,4 @@ The main challenge of this leader-follower architecture was the complete **lack 
 #### **Future Improvements**
 
 1.  **Create a High-Fidelity "Smart Bin" Model:** Instead of the simple `BinSensorMockNode`, we would develop a proper URDF model for the smart bin. This model would include its own plugins to simulate sensor readings and behavior, making the virtual object a much more realistic mirror of a potential real-world counterpart.
-2.  **Establish Shared Environmental Awareness:** We would implement a system for true, synchronized interaction. This would involve creating a node that processes DT robot's sensor data (e.g., from `/scan`) to detect an obstacle and then dynamically adds that obstacle to the Nav2 costmap of the Real robot,by transforming the coordinates of the obstacles into the real robot's map frame, and publish them as a PointCloud2. The real robot's Nav2 costmap would be configured to use this point cloud as an additional obstacle source, causing the physical robot to plan paths around purely virtual objects. This would cause both robots to react to the same environmental feature, even if only one can directly perceive it.
+2.  **Establish Shared Environmental Awareness:** We would implement a system for true synchronized interaction. This would involve creating a node that processes DT robot's sensor data (e.g., from `/scan`) to detect an obstacle and then dynamically adds that obstacle to the Nav2 costmap of the Real robot,by transforming the coordinates of the obstacles into the real robot's map frame, and publish them as a PointCloud2. The real robot's Nav2 costmap would be configured to use this point cloud as an additional obstacle source, causing the physical robot to plan paths around purely virtual objects. This would cause both robots to react to the same environmental feature, even if only one can directly perceive it.
