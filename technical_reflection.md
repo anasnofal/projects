@@ -23,7 +23,7 @@ While the communication channels for dispatching missions (Virtual -> Real) and 
 
 Internal Hardware State Channel: We did not establish a communication link for internal robot states. For example, there is no mechanism to transmit a "LIDAR Failure" or "Low Battery Voltage" status from the physical robot to have the virtual twin reflect that same hardware fault.
 
-Shared Environmental Perception Channel: There is no communication channel to send information about dynamic, real-world obstacles (detected by the real robot) to the Gazebo environment. The digital twin remains unaware of unexpected changes in the physical robot's surroundings.
+Shared Environmental Perception Channel: There is no communication channel to send information about dynamic, real-world obstacles (detected by the real robot) to the Gazebo environment and the other way around. The digital twin remains unaware of unexpected changes in the physical robot's surroundings.
 
 #### **Future Improvements**
 
